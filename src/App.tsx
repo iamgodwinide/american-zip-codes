@@ -1,24 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { FormEvent, useState } from 'react';
 import './App.css';
 
 function App() {
+  const [errorMsg, setErrorMsg] = useState('');
+  const [zipcode, setZipcode] = useState('');
+
+  const regex = /(^\d{5}$)|(^\d{5}-\d{4}$)/;
+
+  const validate = (text: string): void => {
+    // validation
+    if (!regex.test(text)) {
+      setErrorMsg("invalid zip code, must either be 5 or 9 chars.")
+    } else {
+      setErrorMsg("");
+    }
+  }
+
+  const handleInput = (evt: React.FormEvent<HTMLInputElement>): void => {
+    const inputText = evt.currentTarget.value
+
+    if (zipcode.length > 4 && inputText.length > zipcode.length) {
+      const code: string = inputText.replace(/-/g, "");
+      const formattedCode: string = String(code.slice(0, 5) + "-" + code.slice(5));
+      setZipcode(() => formattedCode);
+      validate(formattedCode);
+    } else {
+      setZipcode(() => inputText);
+      validate(inputText);
+    }
+
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <form className='form'>
+        <h1 className='title'>Ergeon</h1>
+        <input
+          className={errorMsg.length != 0 ? "error" : "success"}
+          id="zipcode" type={"text"}
+          placeholder="Enter postal/zip code"
+          onChange={(evt: React.FormEvent<HTMLInputElement>) => handleInput(evt)}
+          value={zipcode}
+        />
+        <small className='warning-text'>
+          {errorMsg.length != 0 && errorMsg}
+        </small>
+      </form>
     </div>
   );
 }
